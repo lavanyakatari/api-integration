@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 
 function App() {
@@ -6,6 +6,7 @@ function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
+  const [registrationStatus, setRegistrationStatus] = useState(null);
 
   const userDetails = {
     name,
@@ -14,26 +15,64 @@ function App() {
     role,
   };
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch("http://localhost:3000/api/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userDetails),
-      });
+  // useEffect(() => {
+  //   if (registrationStatus === "pending") {
+  //     const registerUser = async () => {
+  //       try {
+  //         const response = await fetch("http://localhost:3000/api/register", {
+  //           method: "POST",
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //           },
+  //           body: JSON.stringify(userDetails),
+  //         });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+  //         if (!response.ok) {
+  //           throw new Error(`HTTP error! status: ${response.status}`);
+  //         }
 
-      const data = await response.json();
-      console.log("User registered successfully:", data);
-    } catch (err) {
-      console.error("Error during registration:", err);
+  //         const data = await response.json();
+  //         console.log("User registered successfully:", data);
+  //         setRegistrationStatus("success");
+  //       } catch (err) {
+  //         console.error("Error during registration:", err);
+  //         setRegistrationStatus("error");
+  //       }
+  //     };
+
+  //     registerUser();
+  //   }
+  // }, [registrationStatus, userDetails]);
+
+  useEffect(() => {
+    if (registrationStatus === "pending") {
+      const registerUser = async () => {
+        try {
+          const response = await fetch("http://localhost:3000/api/register", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(userDetails),
+          });
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const data = await response.json();
+          console.log("User register successfully:", data);
+          setRegistrationStatus("success");
+        } catch (err) {
+          console.error("Error during registration:", err);
+          setRegistrationStatus("error");
+        }
+      };
+      registerUser();
     }
+  }, [registrationStatus, userDetails]);
+
+  const handleRegister = (e) => {
+    e.preventDefault();
+    setRegistrationStatus("pending");
   };
 
   return (
